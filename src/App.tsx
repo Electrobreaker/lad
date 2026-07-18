@@ -41,6 +41,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
   });
   const [notice, setNotice] = useState("");
+  const [isOrganizing, setIsOrganizing] = useState(false);
   useEffect(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)), [tasks]);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(""), 2200); return () => clearTimeout(timer); }, [notice]);
 
@@ -49,10 +50,24 @@ export default function App() {
   const completed = todayTasks.filter((task) => task.done).length;
   const totalMinutes = useMemo(() => todayTasks.filter((task) => !task.done).reduce((sum, task) => sum + task.duration, 0), [todayTasks]);
 
-  function organize() {
-    const next = parseTasks(input);
-    if (!next.length) { setNotice("Спочатку додай хоча б одну думку"); return; }
-    setTasks((current) => [...current, ...next]); setInput(""); setTab("inbox"); setNotice(`Готово: знайдено ${next.length} ${next.length === 1 ? "задачу" : "задачі"}`);
+  async function organize() {
+    if (!input.trim()) { setNotice("Спочатку додай хоча б одну думку"); return; }
+    setIsOrganizing(true);
+    let next: Task[] = [];
+    let usedAi = false;
+    try {
+      const response = await fetch("/api/parse", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: input.trim() }) });
+      if (!response.ok) throw new Error("AI unavailable");
+      const data = await response.json() as { tasks: Array<Pick<Task, "title" | "duration" | "priority">> };
+      next = data.tasks.map((task, index) => ({ ...task, id: `${Date.now()}-${index}`, done: false, today: false }));
+      usedAi = true;
+    } catch {
+      next = parseTasks(input);
+    } finally {
+      setIsOrganizing(false);
+    }
+    if (!next.length) { setNotice("Не вдалося знайти задачі"); return; }
+    setTasks((current) => [...current, ...next]); setInput(""); setTab("inbox"); setNotice(`${usedAi ? "AI упорядкував" : "Локально знайдено"} ${next.length} ${next.length === 1 ? "задачу" : "задачі"}`);
   }
   function update(id: string, patch: Partial<Task>) { setTasks((all) => all.map((task) => task.id === id ? { ...task, ...patch } : task)); }
   function remove(id: string) { setTasks((all) => all.filter((task) => task.id !== id)); }
@@ -71,7 +86,7 @@ export default function App() {
             <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Наприклад: підготувати звіт до 16:00, написати Олені, купити продукти..." autoFocus />
             <div className="capture-actions"><button className="text-button" onClick={addExample}>Додати приклад</button><span>{input.length}/600</span></div>
           </div>
-          <button className="primary" onClick={organize}><Sparkles size={19} />Упорядкувати думки<ArrowRight size={19} /></button>
+          <button className="primary" onClick={organize} disabled={isOrganizing}><Sparkles size={19} />{isOrganizing ? "Упорядковую…" : "Упорядкувати думки"}<ArrowRight size={19} /></button>
           <p className="privacy">Дані залишаються лише на цьому пристрої</p>
         </div>}
 

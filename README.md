@@ -13,4 +13,4 @@ npm run dev
 
 Імпортуйте GitHub-репозиторій у Vercel. Framework Preset визначиться як Vite, build-команда — `npm run build`, output — `dist`.
 
-Поточна стартова версія використовує локальний евристичний розбір і зберігає задачі в `localStorage`. API-ключ не потрібен.
+Для AI-розбору додайте у Vercel Environment Variables серверну змінну `ANTHROPIC_API_KEY`. Без ключа застосунок автоматично використовує локальний евристичний розбір. Задачі зберігаються в `localStorage`.
