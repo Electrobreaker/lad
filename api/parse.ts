@@ -16,7 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(503).json({ error: "AI is not configured" });
   const rawBody = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-  const text = (rawBody as { text?: unknown } | null)?.text;
+  const body = rawBody as { text?: unknown; language?: unknown } | null;
+  const text = body?.text;
+  const language = body?.language === "uk" ? "Ukrainian" : "English";
   if (typeof text !== "string" || !text.trim() || text.length > 600) return res.status(400).json({ error: "Invalid text" });
 
   try {
@@ -25,11 +27,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: {
-          parts: [{ text: "You are the task-parsing module for Lad, an English-language daily planner. Turn unstructured thoughts into concrete tasks. Never invent tasks." }],
+          parts: [{ text: `You are the task-parsing module for Lad, a daily planner. Turn unstructured thoughts into concrete tasks. Never invent tasks. Always write task titles in ${language}.` }],
         },
         contents: [{
           role: "user",
-          parts: [{ text: `Extract up to 12 tasks from the text. Write each title as a short action in English. Estimate duration in minutes from 5 to 480. Set priority to high, medium, or low based on urgency, deadlines, and importance. Text:\n${text.trim()}` }],
+          parts: [{ text: `Extract up to 12 tasks from the text. Write each title as a short action in ${language}. Estimate duration in minutes from 5 to 480. Set priority to high, medium, or low based on urgency, deadlines, and importance. Text:\n${text.trim()}` }],
         }],
         generationConfig: {
           temperature: 0,
@@ -41,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             items: {
               type: "object",
               properties: {
-                title: { type: "string", description: "A short, concrete action in English" },
+                title: { type: "string", description: `A short, concrete action in ${language}` },
                 duration: { type: "integer", minimum: 5, maximum: 480 },
                 priority: { type: "string", enum: ["high", "medium", "low"] },
               },

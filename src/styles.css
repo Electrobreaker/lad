@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
 
-:root { font-family: Manrope, sans-serif; color: #20231f; background: #eeeee9; font-synthesis: none; --green:#375c4b; --cream:#f8f7f2; --line:#dedfd8; }
+:root { font-family: Manrope, sans-serif; color: #20231f; background: #eeeee9; font-synthesis: none; color-scheme:light; --green:#375c4b; --cream:#f8f7f2; --line:#dedfd8; }
+:root[data-theme="dark"] { color-scheme:dark; --green:#80aa94; --cream:#171b18; --line:#343b36; color:#edf1ed; background:#101311; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 50% -20%,#fff 0,#edeee9 55%); }
 button,textarea { font: inherit; }
@@ -29,8 +30,8 @@ textarea::placeholder { color:#a3a7a1; }
 .primary svg:last-child { margin-left:4px; }
 .primary:active,.secondary:active { transform:scale(.985); }
 .privacy { color:#9a9d97;font-size:10px;margin:15px 0; }
-.bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);height:76px;padding:8px 40px max(8px,env(safe-area-inset-bottom));background:rgba(251,250,246,.94);backdrop-filter:blur(14px);border-top:1px solid #e3e3dc;display:flex;justify-content:space-between; }
-.bottom-nav button { border:0;background:transparent;color:#959a93;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700;position:relative;cursor:pointer; }
+.bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);height:76px;padding:8px 18px max(8px,env(safe-area-inset-bottom));background:rgba(251,250,246,.94);backdrop-filter:blur(14px);border-top:1px solid #e3e3dc;display:flex;justify-content:space-between; }
+.bottom-nav button { border:0;background:transparent;color:#959a93;min-width:58px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;font-weight:700;position:relative;cursor:pointer; }
 .bottom-nav button.active { color:var(--green); }
 .bottom-nav button.active::before { content:"";position:absolute;top:-8px;width:28px;height:3px;background:var(--green);border-radius:0 0 5px 5px; }
 .bottom-nav i { position:absolute;top:0;right:6px;background:#d16a4a;color:white;border:2px solid var(--cream);border-radius:10px;min-width:17px;height:17px;line-height:13px;font-size:9px;font-style:normal; }
@@ -61,6 +62,40 @@ textarea::placeholder { color:#a3a7a1; }
 .empty h2 { font-family:"Playfair Display",serif;font-size:25px;margin:0 0 9px;color:#2f3a34; }
 .empty p { margin:0;max-width:260px;color:#858a84;font-size:12px;line-height:1.6; }
 .empty button { margin-top:20px;border:0;background:transparent;color:var(--green);font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px; }
+.settings-screen { padding-top:24px; }
+.settings-screen .section-note { margin-bottom:20px; }
+.setting-card { background:#fff;border:1px solid #e2e2dc;border-radius:19px;padding:17px;margin-bottom:12px;box-shadow:0 5px 16px rgba(28,36,31,.035); }
+.setting-heading { display:flex;align-items:flex-start;gap:12px;margin-bottom:16px; }
+.setting-icon { flex:0 0 auto;width:38px;height:38px;border-radius:12px;background:#e7eee9;color:var(--green);display:grid;place-items:center; }
+.setting-heading h2 { margin:1px 0 5px;font-size:14px; }
+.setting-heading p { margin:0;color:#858a84;font-size:10px;line-height:1.5; }
+.segmented { display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#f0f1ed;padding:4px;border-radius:13px; }
+.segmented button { min-height:39px;border:0;border-radius:10px;background:transparent;color:#7d827c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer; }
+.segmented button.selected { background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(31,41,35,.1); }
 .toast { position:fixed;z-index:20;left:50%;bottom:90px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 40px);background:#25352d;color:white;border-radius:13px;padding:11px 15px;font-size:11px;font-weight:700;box-shadow:0 9px 28px rgba(25,35,29,.2);animation:toast-in .2s ease; }
 @keyframes toast-in { from { opacity:0;transform:translate(-50%,8px) } }
+
+:root[data-theme="dark"] body { background:radial-gradient(circle at 50% -20%,#283029 0,#101311 58%); }
+:root[data-theme="dark"] .app-shell { box-shadow:0 0 70px rgba(0,0,0,.35); }
+:root[data-theme="dark"] .date { color:#a7afa8;background:#222823;border-color:#343b36; }
+:root[data-theme="dark"] h1 { color:#edf2ee; }
+:root[data-theme="dark"] .lead,:root[data-theme="dark"] .section-note { color:#a4aca5; }
+:root[data-theme="dark"] .capture-box,:root[data-theme="dark"] .task,:root[data-theme="dark"] .setting-card { background:#202521;border-color:#343b36;box-shadow:0 12px 30px rgba(0,0,0,.18); }
+:root[data-theme="dark"] textarea { color:#edf1ed; }
+:root[data-theme="dark"] textarea::placeholder { color:#737c75; }
+:root[data-theme="dark"] .text-button,:root[data-theme="dark"] .icon-button { background:#2b352f;color:var(--green); }
+:root[data-theme="dark"] .bottom-nav { background:rgba(23,27,24,.94);border-color:#343b36; }
+:root[data-theme="dark"] .bottom-nav button { color:#778079; }
+:root[data-theme="dark"] .bottom-nav button.active { color:var(--green); }
+:root[data-theme="dark"] .check { background:#202521;border-color:#566159; }
+:root[data-theme="dark"] .secondary,:root[data-theme="dark"] .day-summary { background:#28332d;color:#a9baaf; }
+:root[data-theme="dark"] .day-summary strong { color:#d4e6db; }
+:root[data-theme="dark"] .progress-ring { border-color:#35443b; }
+:root[data-theme="dark"] .empty h2 { color:#e6ebe7; }
+:root[data-theme="dark"] .empty p,:root[data-theme="dark"] .setting-heading p { color:#949d96; }
+:root[data-theme="dark"] .empty__icon,:root[data-theme="dark"] .setting-icon { background:#29352e; }
+:root[data-theme="dark"] .segmented { background:#171b18; }
+:root[data-theme="dark"] .segmented button { color:#8f9891; }
+:root[data-theme="dark"] .segmented button.selected { background:#303832;color:#dce9e1;box-shadow:0 2px 8px rgba(0,0,0,.25); }
+:root[data-theme="dark"] .toast { background:#e3ebe5;color:#1c241f; }
 @media (min-width:700px) { body { padding:25px 0; }.app-shell { min-height:calc(100dvh - 50px);border-radius:30px;overflow:hidden }.bottom-nav { bottom:25px;border-radius:0 0 30px 30px } }
