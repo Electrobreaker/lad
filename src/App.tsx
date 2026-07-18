@@ -87,7 +87,7 @@ export default function App() {
             <div className="capture-actions"><button className="text-button" onClick={addExample}>Додати приклад</button><span>{input.length}/600</span></div>
           </div>
           <button className="primary" onClick={organize} disabled={isOrganizing}><Sparkles size={19} />{isOrganizing ? "Упорядковую…" : "Упорядкувати думки"}<ArrowRight size={19} /></button>
-          <p className="privacy">Дані залишаються лише на цьому пристрої</p>
+          <p className="privacy">Задачі зберігаються на пристрої · текст обробляє Gemini</p>
         </div>}
 
         {tab === "inbox" && <div className="screen list-screen">

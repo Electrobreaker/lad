@@ -13,27 +13,48 @@ function isTask(value: unknown): value is AiTask {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(503).json({ error: "AI is not configured" });
   const rawBody = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
   const text = (rawBody as { text?: unknown } | null)?.text;
   if (typeof text !== "string" || !text.trim() || text.length > 600) return res.status(400).json({ error: "Invalid text" });
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 900,
-        temperature: 0,
-        system: "Ти модуль українського планера Lad. Перетворюй хаотичний текст на конкретні задачі. Не вигадуй задач. Повертай виключно валідний JSON без markdown.",
-        messages: [{ role: "user", content: `Розбери текст на максимум 12 задач. Поверни масив об'єктів з полями: title (коротка дія українською), duration (оцінка у хвилинах від 5 до 480), priority (high, medium або low). Враховуй терміновість, дедлайни та важливість. Текст:\n${text.trim()}` }],
+        systemInstruction: {
+          parts: [{ text: "Ти модуль українського планера Lad. Перетворюй хаотичний текст на конкретні задачі. Не вигадуй задач." }],
+        },
+        contents: [{
+          role: "user",
+          parts: [{ text: `Розбери текст на максимум 12 задач. Назви формулюй як короткі дії українською. Оціни duration у хвилинах від 5 до 480. Для priority використовуй high, medium або low, враховуючи терміновість, дедлайни та важливість. Текст:\n${text.trim()}` }],
+        }],
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: 900,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "array",
+            maxItems: 12,
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string", description: "Коротка конкретна дія українською" },
+                duration: { type: "integer", minimum: 5, maximum: 480 },
+                priority: { type: "string", enum: ["high", "medium", "low"] },
+              },
+              required: ["title", "duration", "priority"],
+              additionalProperties: false,
+            },
+          },
+        },
       }),
     });
-    if (!response.ok) throw new Error(`Anthropic request failed: ${response.status}`);
-    const payload = await response.json() as { content?: Array<{ type?: string; text?: string }> };
-    const content = payload.content?.find((block) => block.type === "text")?.text;
+    if (!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
+    const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+    const content = payload.candidates?.[0]?.content?.parts?.find((part) => typeof part.text === "string")?.text;
     if (!content) throw new Error("Empty AI response");
     const parsed: unknown = JSON.parse(content.replace(/^```json\s*|\s*```$/g, ""));
     if (!Array.isArray(parsed)) throw new Error("Invalid AI response");
