@@ -25,11 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: {
-          parts: [{ text: "Ти модуль українського планера Lad. Перетворюй хаотичний текст на конкретні задачі. Не вигадуй задач." }],
+          parts: [{ text: "You are the task-parsing module for Lad, an English-language daily planner. Turn unstructured thoughts into concrete tasks. Never invent tasks." }],
         },
         contents: [{
           role: "user",
-          parts: [{ text: `Розбери текст на максимум 12 задач. Назви формулюй як короткі дії українською. Оціни duration у хвилинах від 5 до 480. Для priority використовуй high, medium або low, враховуючи терміновість, дедлайни та важливість. Текст:\n${text.trim()}` }],
+          parts: [{ text: `Extract up to 12 tasks from the text. Write each title as a short action in English. Estimate duration in minutes from 5 to 480. Set priority to high, medium, or low based on urgency, deadlines, and importance. Text:\n${text.trim()}` }],
         }],
         generationConfig: {
           temperature: 0,
@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             items: {
               type: "object",
               properties: {
-                title: { type: "string", description: "Коротка конкретна дія українською" },
+                title: { type: "string", description: "A short, concrete action in English" },
                 duration: { type: "integer", minimum: 5, maximum: 480 },
                 priority: { type: "string", enum: ["high", "medium", "low"] },
               },
